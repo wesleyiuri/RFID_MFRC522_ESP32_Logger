@@ -1,0 +1,14 @@
+%% Legenda
+%% - INIT: inicializa módulos e recursos
+%% - CONNECTING: tentando estabelecer conexão WiFi
+%% - SENDING_QUEUE: drenando fila enquanto online
+%% - IDLE: aguardando novas leituras quando não há fila
+%% - Transições: “Wi-Fi OK”, “Fila vazia”, “Wi-Fi caiu”, “Novo item”
+stateDiagram-v2
+  [*] --> INIT
+  INIT --> CONNECTING
+  CONNECTING --> SENDING_QUEUE: Wi-Fi OK
+  SENDING_QUEUE --> IDLE: Fila vazia
+  SENDING_QUEUE --> CONNECTING: Wi-Fi caiu
+  IDLE --> SENDING_QUEUE: Novo item
+  IDLE --> CONNECTING: Wi-Fi caiu

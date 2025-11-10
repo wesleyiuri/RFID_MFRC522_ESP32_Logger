@@ -1,0 +1,54 @@
+# Arquivo: .github/workflows/ci.yml
+# Propósito: Executar a Integração Contínua (CI) do projeto com GitHub Actions.
+# O fluxo compila o projeto PlatformIO e roda os testes automaticamente
+# sempre que houver push ou pull request nas branches principais.
+
+name: CI # Nome exibido na aba Actions do GitHub
+
+# Evita execuções simultâneas redundantes na mesma branch/PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on: # Gatilhos que disparam este workflow
+  push: # Ao enviar commits (push)
+    branches: [ main, master ] # Apenas para as branches main e master
+  pull_request: # Ao abrir/atualizar pull requests
+    branches: [ main, master ] # Apenas quando o alvo é main ou master
+
+jobs: # Lista de jobs (podem rodar em paralelo)
+  build: # Job principal de build e testes
+    runs-on: ubuntu-latest # Máquina virtual Ubuntu fornecida pelo GitHub
+    steps: # Sequência de passos executados em ordem
+      - uses: actions/checkout@v4 # Faz checkout do repositório (clona o código)
+      - name: Set up Python # Provisiona Python 3.x com cache de dependências
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          cache: 'pip'
+          cache-dependency-path: |
+            **/requirements*.txt
+            **/platformio.ini
+
+      - name: Cache PlatformIO core and packages # Acelera builds reusando downloads
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.platformio
+          key: pio-${{ runner.os }}-${{ hashFiles('**/platformio.ini') }}
+          restore-keys: |
+            pio-${{ runner.os }}-
+
+      - name: Install PlatformIO # Instala o PlatformIO via pip (Python)
+        run: pip install --upgrade platformio
+      - name: Build (esp32dev) # Compila a environment esp32dev
+        run: pio run -e esp32dev
+
+      # Observação: testes na environment embarcada (esp32dev) exigem hardware na runner.
+      # Se desejar habilitar, remova o comentário abaixo e conecte a placa no agente.
+      # - name: Run tests (esp32dev)
+      #   run: pio test -e esp32dev
+
+  # Observações:
+  # - Se adicionar novas environments no platformio.ini, duplique os passos
+  #   de build/test com -e <env> ou use uma strategy.matrix.

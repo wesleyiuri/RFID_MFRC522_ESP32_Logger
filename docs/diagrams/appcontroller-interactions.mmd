@@ -1,0 +1,18 @@
+%% Legenda
+%% - AppController: orquestra o ciclo principal e aciona serviços por tick
+%% - serviceRfid: lê novas tags e insere no buffer quando há UID válido
+%% - serviceQueueSend: tenta enviar itens pendentes do buffer via HTTP
+%% - NetManager.loop: atualiza estado/conexão WiFi com backoff
+%% - UidBuffer: armazena UIDs e timestamps ainda não enviados
+%% - RfidReader: interface MFRC522 com deduplicação por UID (cache + janela)
+%% - HttpSender: realiza POST dos UIDs ao endpoint
+%% - PersistentStore: salva/carrega snapshot do buffer (opcional)
+flowchart LR
+  AC[AppController]
+  AC -->|calls| SR[serviceRfid]
+  AC -->|calls| SQ[serviceQueueSend]
+  AC -->|calls| NMloop[NetManager.loop]
+  AC -->|uses| UB[UidBuffer]
+  AC -->|uses| RR[RfidReader]
+  AC -->|uses| HS[HttpSender]
+  AC -->|uses| PS[PersistentStore]

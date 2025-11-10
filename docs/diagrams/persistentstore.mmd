@@ -1,0 +1,28 @@
+%% Legenda
+%% - begin: abre o namespace no NVS (Preferences) para o buffer
+%% - saveSnapshot: grava contagem total e cada par UID/ts
+%% - load: lê contagem, varre itens, empilha no buffer se válido
+%% - limita a capacidade: garante que não exceda a capacidade do buffer
+%% - Preferences begin rfidbuf: abre o namespace "rfidbuf" nas Preferences
+%% - putUInt count: grava a contagem total de itens
+%% - getUInt count: lê a contagem total armazenada
+%% - para i=0..size-1: laço para gravar snapshot completo
+%% - putString uid_i: grava o UID do índice i
+%% - putUInt ts_i: grava o timestamp do índice i
+%% - para i=0..count-1: laço para restaurar itens salvos
+%% - getString uid: lê o UID salvo
+%% - getUInt ts: lê o timestamp salvo
+%% - buf.push: insere item lido no buffer em memória
+%% - ignora: pula entradas inválidas/vazias ao restaurar
+graph TD
+  BGN[begin] --> NS[Preferences begin rfidbuf]
+  SAVE[saveSnapshot] --> PUTCOUNT[putUInt count]
+  PUTCOUNT --> LOOP1{para i=0..size-1}
+  LOOP1 -- itera --> PUT[putString uid_i<br/>putUInt ts_i]
+  LOAD[load] --> GETCOUNT[getUInt count]
+  GETCOUNT --> CLAMP[limita a capacidade]
+  CLAMP --> LOOP2{para i=0..count-1}
+  LOOP2 -- itera --> READ[getString uid<br/>getUInt ts]
+  READ --> CHECK{uid nao vazio}
+  CHECK -- sim --> PUSH[buf.push]
+  CHECK -- nao --> SKIP[ignora]

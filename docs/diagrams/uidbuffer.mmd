@@ -1,0 +1,22 @@
+%% Legenda
+%% - push: insere novo UID/ts, descartando o mais antigo se cheio
+%% - peek: lê o elemento mais antigo sem remover
+%% - pop: lê e remove o elemento mais antigo
+%% - head/tail/size: índices e tamanho internos do ring buffer
+%% - cheio/descarta mais antigo: política de sobre-escrita quando lotado
+graph TD
+  PUSH[push] --> VAL{uid valido}
+  VAL -- nao --> PF[retorna false]
+  VAL -- sim --> FULL{cheio}
+  FULL -- sim --> DROP[descarta mais antigo]
+  FULL -- nao --> W[escreve em head]
+  DROP --> W
+  W --> INC[incrementa size/head] --> PT[retorna true]
+
+  PEEK[peek] --> EMP{vazio}
+  EMP -- sim --> P0[retorna false]
+  EMP -- nao --> CP[copia tail] --> P1[retorna true]
+
+  POP[pop] --> EMP2{vazio}
+  EMP2 -- sim --> Q0[retorna false]
+  EMP2 -- nao --> CP2[copia tail] --> ADV[avanca tail/--size] --> Q1[retorna true]

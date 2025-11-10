@@ -1,0 +1,22 @@
+%% Legenda
+%% - postUid: API pública para enviar um UID do buffer
+%% - monta JSON: serializa UID, timestamp e metadados
+%% - performPost: prepara cliente HTTP e chama envio
+%% - HTTPClient init / setTimeout: configura cliente e timeouts
+%% - POST payload: envia o corpo JSON para o endpoint via HTTP
+%% - status OK: avalia código HTTP 2xx
+%% - deve retry: decide re-tentativa com backoff para erros transitórios
+%% - retorna true: sucesso de envio
+%% - aguarda backoff: espera incremental antes de nova tentativa
+%% - retorna false: esgotou tentativas, falha final
+graph TD
+  POSTUID[postUid] --> JSON[monta JSON]
+  JSON --> POST[performPost]
+  POST --> INIT[HTTPClient init<br/>setTimeout]
+  INIT --> SEND[POST payload]
+  SEND --> OK{status OK}
+  OK -- sim --> TRUE[retorna true]
+  OK -- nao --> RETRY{deve retry}
+  RETRY -- nao --> FALSE[retorna false]
+  RETRY -->|sim| WAIT[aguarda backoff]
+  WAIT --> SEND

@@ -1,0 +1,27 @@
+%% Mermaid source for the project architecture diagram
+%% This mirrors the diagram embedded in README.md
+
+flowchart LR
+  main[main.cpp] --> AC[AppController]
+  AC --> RR[RfidReader]
+  AC --> NM[NetManager]
+  AC --> HS[HttpSender]
+  AC --> UB[UidBuffer]
+  AC --> PS[PersistentStore]
+
+  RR --> MFRC[Hardware MFRC522]
+  NM --> WIFI[Wi-Fi Stack]
+  HS --> HTTP[HTTPClient + WiFiClientSecure]
+  PS --> NVS[NVS/Preferences]
+
+  subgraph Firmware
+    AC
+    RR
+    NM
+    HS
+    UB
+    PS
+  end
+
+  classDef comp fill:#eef,stroke:#88a;
+  class AC,RR,NM,HS,UB,PS comp;

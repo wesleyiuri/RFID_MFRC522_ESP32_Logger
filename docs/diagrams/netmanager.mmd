@@ -1,0 +1,22 @@
+%% Legenda
+%% - begin: configura o WiFi em modo STA; desabilita autoReconnect e persistent
+%% - STA mode: modo Station (cliente do AP)
+%% - autoReconnect off: reconexão automática desativada (controle manual)
+%% - persistent off: não salva credenciais/estado do WiFi no NVS
+%% - attemptConnect: inicia tentativa de conexão
+%% - loop: rotina periódica para gerenciar estado de rede
+%% - WiFi conectado: condição de link ativo
+%% - houve transicao: detecta mudança de desconectado para conectado
+%% - onConnect: callback quando fica online
+%% - aguarda currentWait: delay incremental antes de nova tentativa
+%% - backoffGrow: aumenta backoff com jitter dentro de limites
+graph TD
+  BGN[begin] --> SET[STA mode<br/>autoReconnect off<br/>persistent off]
+  SET --> ATT[attemptConnect]
+  LOOP[loop] --> CONN{WiFi conectado}
+  CONN -- sim --> TRANS{houve transicao}
+  TRANS -- sim --> ONC[onConnect]
+  TRANS -- nao --> RET1[retorna]
+  CONN -- nao --> WAIT[aguarda currentWait]
+  WAIT --> ATT2[attemptConnect]
+  ATT2 --> BACK[backoffGrow]

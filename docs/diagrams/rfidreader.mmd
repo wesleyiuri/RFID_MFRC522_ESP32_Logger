@@ -1,0 +1,17 @@
+%% Legenda
+%% - begin: inicializa o SPI e o leitor MFRC522
+%% - read: tenta ler uma tag e obter o UID bruto
+%% - Nova tag e serial: confirma presença da tag e leitura de número de série
+%% - uidToHex: converte o UID para string hexadecimal
+%% - isDuplicate por UID: aplica janela anti-duplicação por UID (cache + janela), inclusive quando alterna tags
+%% - atualiza lastUid/ts: atualiza o último UID e timestamp, habilitando o envio
+graph TD
+  BGN[begin] --> SPI[Init SPI]
+  SPI --> PCD[PCD Init]
+  READ[read] --> CHECK{Nova tag e serial}
+  CHECK -- nao --> R1[retorna false]
+  CHECK -- sim --> HEX[uidToHex]
+  HEX --> DEDUP{isDuplicate por UID}
+  DEDUP -- sim --> R2[retorna false]
+  DEDUP -- nao --> SAVE[atualiza lastUid/ts]
+  SAVE --> R3[retorna true]

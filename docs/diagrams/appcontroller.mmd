@@ -1,0 +1,22 @@
+flowchart LR
+  AC[AppController]
+  AC -->|calls| SR[serviceRfid]
+  AC -->|calls| SQ[serviceQueueSend]
+  AC -->|calls| NMloop[NetManager.loop]
+  AC -->|uses| UB[UidBuffer]
+  AC -->|uses| RR[RfidReader]
+  AC -->|uses| HS[HttpSender]
+  AC -->|uses| PS[PersistentStore]
+
+  subgraph FSM
+    INIT[INIT]
+    CONNECTING[CONNECTING]
+    SENDING[SENDING_QUEUE]
+    IDLE[IDLE]
+    INIT --> CONNECTING
+    CONNECTING -->|Wi-Fi OK| SENDING
+    SENDING -->|fila vazia| IDLE
+    SENDING -->|Wi-Fi caiu| CONNECTING
+    IDLE -->|novo item| SENDING
+    IDLE -->|Wi-Fi caiu| CONNECTING
+  end
